@@ -3,6 +3,9 @@ import * as THREE from 'three'
 
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 
+import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader'
+import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader'
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({
@@ -13,8 +16,6 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 camera.position.setZ(30);
-
-renderer.render(scene, camera);
 
 const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
 const material = new THREE.MeshStandardMaterial({color: 0xFF6347});
@@ -38,7 +39,7 @@ const gridHelper = new THREE.GridHelper(200, 50);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 
-function addStar() {
+function createStar() {
   const geometry = new THREE.SphereGeometry(0.25, 24, 24);
   const material = new THREE.MeshStandardMaterial({color: 0xFFFFFF});
   const star = new THREE.Mesh(geometry, material);
@@ -46,10 +47,16 @@ function addStar() {
   const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(100));
   star.position.set(x, y, z);
 
-  scene.add(star)
+  return star
 }
 
-Array(200).fill().forEach(addStar);
+var stars = []
+
+Array(200).fill().forEach(() => {
+  var star = createStar();
+  stars.push(star);
+  scene.add(star);
+});
 
 const spaceTexture = new THREE.TextureLoader().load('images/space.png');
 scene.background = spaceTexture;
@@ -70,6 +77,11 @@ function rotateGeometry(geoObj) {
   geoObj.rotation.z += .01;
 }
 
+function randomAnimate(geoObj) {
+  var randomValue = .01;
+  geoObj.position.x += randomValue;
+}
+
 function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, camera)
@@ -78,6 +90,10 @@ function animate() {
 
   rotateGeometry(torus);
   rotateGeometry(mayBox);
+
+  stars.forEach(star => {
+    randomAnimate(star);
+  });
 }
 
 animate();
